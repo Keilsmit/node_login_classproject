@@ -1,8 +1,8 @@
 const express = require('express');
 const mustacheExpress = require('mustache-express');
 const session = require('express-session');
-const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -15,6 +15,8 @@ app.set('view engine', 'mustache');
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+app.use(expressValidator());
 
 app.use(session({
     secret: "cat",
@@ -47,6 +49,7 @@ app.get('/login', function(req, res) {
 app.post("/login", function(req, res, next) {
   console.log(req.body);
   console.log(req.session.users[req.body.username]);
+
   req.checkBody("username", "please enter a valid name")
     .notEmpty()
     .isLength({
@@ -54,7 +57,7 @@ app.post("/login", function(req, res, next) {
       max: 100
     });
 
-  req.checkbody("password", "please enter a valid password")
+  req.checkBody("password", "please enter a valid password")
     .notEmpty()
     .isLength({
       min: 4,
