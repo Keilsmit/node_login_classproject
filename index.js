@@ -2,6 +2,7 @@ const express = require('express');
 const mustacheExpress = require('mustache-express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
 
 const app = express();
 
@@ -38,30 +39,42 @@ app.get('/', function(req, res, next) {
     next();
 });
 
-
 app.get('/login', function(req, res) {
     res.render('index');
 });
 
 
 app.post("/login", function(req, res, next) {
+  console.log(req.body);
+  console.log(req.session.users[req.body.username]);
+  req.checkBody("username", "please enter a valid name")
+    .notEmpty()
+    .isLength({
+      min: 0,
+      max: 100
+    });
 
-    console.log(req.body);
-    console.log(req.session.users[req.body.username]);
+  req.checkbody("password", "please enter a valid password")
+    .notEmpty()
+    .isLength({
+      min: 4,
+      max: 20
+    });
 
-    if (req.session.users[req.body.username] === req.body.password) {
-        req.session.username = req.body.username;
-        req.session.password = req.body.password;
-    };
-    res.redirect('/')
+  const error_messages = req.validationErrors();
+
+  if (error_messages){
+    res.send(error_messages);
+  }else{
+    if (req.session.users[req.body.username] === req.body.password){
+      req.session.username = req.body.username;
+      req.session.password = req.body.password;
+    }
+      res.redirect('/');
+  }
 });
 
 
-
-
-
-
-
-app.listen(3000, function() {
-    console.log('Your server is running...')
-});
+        app.listen(3000, function() {
+            console.log('Your server is running...')
+        });
